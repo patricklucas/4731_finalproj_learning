@@ -62,6 +62,18 @@ public class GridWorld {
 						graph.getNode(new Point(x, y + 1)));
 			}
 		}
+		/*for (int x = 0; x < xCells - 1; x++) {
+			for (int y = 0; y < yCells - 1; y++) {
+				graph.getNode(new Point(x, y)).addOmniLink(
+						graph.getNode(new Point(x + 1, y + 1)));
+			}
+		}
+		for (int x = 1; x < xCells; x++) {
+			for (int y = 1; y < yCells; y++) {
+				graph.getNode(new Point(x, y)).addOmniLink(
+						graph.getNode(new Point(x - 1, y - 1)));
+			}
+		}*/
 	}
 
 	public List<Point> getPath(Point a, Point b)
