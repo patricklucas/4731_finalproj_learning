@@ -11,6 +11,7 @@ import javax.swing.JPanel;
 import javax.swing.Timer;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.SwingUtilities;
 
 import pathtest.AStarModule.UnreachableNodeException;
 
@@ -19,6 +20,7 @@ public class ViewPanel extends JPanel {
 	GridWorld world;
 	Dude[] dudes;
 	Point target;
+	final int AMOUNT_DUDES = 10;
 
 	public ViewPanel() throws UnreachableNodeException {
 
@@ -27,14 +29,12 @@ public class ViewPanel extends JPanel {
 		setPreferredSize(new Dimension(600, 600));
 
 		world = new GridWorld(new Dimension(600, 600));
-		dudes = new Dude[]{	new Dude(new V2(10, 11)),
-							new Dude(new V2(10, 12)),
-							new Dude(new V2(10, 12)),
-							new Dude(new V2(10, 14)),
-							new Dude(new V2(10, 15)),
-							new Dude(new V2(10, 16)),
-							new Dude(new V2(10, 17)),
-							new Dude(new V2(10, 18))};
+		
+		dudes = new Dude[AMOUNT_DUDES];
+		for (int i = 0; i < dudes.length; i++) {
+			dudes[i] = new Dude(new V2(10, 10 + i));	
+		}
+		
 		target = new Point(9, 9);
 
 		for (int i = 2; i < 9; i++) {
@@ -49,17 +49,17 @@ public class ViewPanel extends JPanel {
 		new Timer(16, new ActionListener() {
 
 			void dudeStuff(Dude dude) {
+				Point dudeTile = world.getTile(dude.pos);
 				try {
-					Point dudeTile = world.getTile(dude.pos);
-					List<Point> path = world.getPath(dudeTile, ViewPanel.this.target);
+					List<Point> path = world.getPath(dudeTile, target);
 					//world.changeColors(Color.GREEN, path);
 					Point cGoal = dudeTile;
 					if (path.size() > 1) {
 						cGoal = path.get(1);
 					}
 					dude.update(world.getCenter(cGoal));
-				} catch (Exception e1) {
-					e1.printStackTrace();
+				} catch (Exception uhoh) {
+					dude.update(world.getCenter(target));
 				}
 			}
 
@@ -89,12 +89,19 @@ public class ViewPanel extends JPanel {
 		Point td = world.getCenter(target).toPoint();
 		g.setColor(Color.BLACK);
 		g.drawOval(td.x - 20, td.y - 20, 40, 40);
-		g.drawString("Click to set destination", 5 , 20);
+		g.drawString("Left- Click to set destination, Right-Click to place wall.", 5 , 20);
 	}
 	
 	MouseAdapter mouseController = new MouseAdapter() {
 		public void mouseClicked(MouseEvent e) {
-			target = world.getTile(new V2(e.getPoint()));
+			Point clicked = world.getTile(new V2(e.getPoint()));
+			if (SwingUtilities.isRightMouseButton(e)) {
+				world.changeColors(Color.RED, clicked);
+				world.rebuildGraph();
+			} else {
+				target = clicked;
+			}
+			
 			repaint();
 		}
 	};

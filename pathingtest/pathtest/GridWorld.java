@@ -76,8 +76,7 @@ public class GridWorld {
 		}*/
 	}
 
-	public List<Point> getPath(Point a, Point b)
-			throws UnreachableNodeException {
+	public List<Point> getPath(Point a, Point b) throws UnreachableNodeException {
 		List<Point> p = new LinkedList<Point>();
 		List<AStarNode<Point>> s = module.findPathTo(graph.getNode(a),
 				graph.getNode(b));
