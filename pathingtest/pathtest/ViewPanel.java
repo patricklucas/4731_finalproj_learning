@@ -19,6 +19,7 @@ public class ViewPanel extends JPanel {
 
 	GridWorld world;
 	Dude[] dudes;
+	Point[] subtarget;
 	Point target;
 	final int AMOUNT_DUDES = 15;
 

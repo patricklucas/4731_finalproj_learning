@@ -134,12 +134,13 @@ public class GridWorld {
 	}
 
 	public void rebuildGraph() {
+
 		for (int x = 0; x < xCells; x++) {
 			for (int y = 0; y < yCells; y++) {
 				if (colors[x][y] != Color.CYAN) {
 					AStarNode<Point> s = graph.getNode(new Point(x, y));
 					for( Entry<AStarNode<Point>, Double> neighbor : s.getChildren().entrySet()) {
-						s.addPathCost(neighbor.getKey(), Double.MAX_VALUE);
+						neighbor.getKey().addPathCost(s, Double.MAX_VALUE);
 					}
 				}
 			}
