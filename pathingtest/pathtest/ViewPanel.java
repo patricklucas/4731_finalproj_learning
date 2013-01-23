@@ -20,7 +20,7 @@ public class ViewPanel extends JPanel {
 	GridWorld world;
 	Dude[] dudes;
 	Point target;
-	final int AMOUNT_DUDES = 10;
+	final int AMOUNT_DUDES = 15;
 
 	public ViewPanel() throws UnreachableNodeException {
 

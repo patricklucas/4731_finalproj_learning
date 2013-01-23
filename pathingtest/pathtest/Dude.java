@@ -4,7 +4,7 @@ import java.awt.Graphics;
 
 public class Dude {
 	V2 pos;
-	int r = 10;
+	int r = 5;
 	float speed = 1;
 
 	public Dude(V2 pos) {

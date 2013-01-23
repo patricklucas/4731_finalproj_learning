@@ -3,8 +3,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
 
 import pathtest.AStarModule.AStarGraph;
@@ -14,7 +13,7 @@ import pathtest.AStarModule.UnreachableNodeException;
 
 public class GridWorld {
 
-	int xCells = 10, yCells = 10;
+	int xCells = 15, yCells = 15;
 	AStarModule<Point> module;
 	AStarGraph<Point> graph;
 	Dimension size;
@@ -24,13 +23,22 @@ public class GridWorld {
 
 
 	Color[][] colors;
+	
+	/**
+	 * Enable/disable nav cache.
+	 * Slow on rebuild, but querying for paths is way fast.
+	 */
+	boolean cache = false;
+	
+	Map<Point, List<Point>> navCache;
 
-	public GridWorld(Dimension size) {
+	public GridWorld(Dimension screenSize) {
 		graph = new AStarGraph<Point>();
 		colors = new Color[xCells][yCells];
 		buildMap();
 		module = new AStarModule<Point>(graph);
-		this.size = size;
+		this.size = screenSize;
+		navCache = new HashMap<Point, List<Point>>();
 		tilew = size.width / xCells;
 		tileh = size.height / yCells;
 	}
@@ -77,6 +85,14 @@ public class GridWorld {
 	}
 
 	public List<Point> getPath(Point a, Point b) throws UnreachableNodeException {
+		if (cache) {
+			return navCache.get(new Point(pointToIndex(a), pointToIndex(b)));
+		} else {
+			return getPathCostly(a, b);
+		}
+	}
+	
+	private List<Point> getPathCostly(Point a, Point b) throws UnreachableNodeException {
 		List<Point> p = new LinkedList<Point>();
 		List<AStarNode<Point>> s = module.findPathTo(graph.getNode(a),
 				graph.getNode(b));
@@ -128,5 +144,35 @@ public class GridWorld {
 				}
 			}
 		}
+		
+		if (cache) {
+			navCache.clear();
+			for (int i = 0; i < xCells * yCells; i++) {
+				for (int i2 = 0; i2 < xCells * yCells; i2++) {
+					System.out.println("Rebuilding navigation cache: " + (int)(i * 100 / (xCells * yCells)) + "%");
+					if (i == i2) {
+						navCache.put(new Point(i, i2), new LinkedList<Point>());
+					} else {
+						Point fromPoint = indexToPoint(i);
+						Point toPoint = indexToPoint(i2);
+						try {
+							navCache.put(new Point(i, i2), getPathCostly(fromPoint, toPoint));
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+				}	
+			}
+		}
 	}
+	
+	private Point indexToPoint(int index) {
+		int y = index / xCells;
+		int x = index % yCells;
+		return new Point(x, y);
+	}
+	
+	private int pointToIndex(Point a) {
+		return a.y * xCells + a.x;
+	}	
 }
