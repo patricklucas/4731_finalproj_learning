@@ -21,6 +21,10 @@ public class V2 {
 	public final static V2 UP_RIGHT = ONE.unit();
 	public final static V2 DOWN_RIGHT = ONE.scale(1, -1).unit();
 	public final static V2 RIGHT = new V2(1, 0);
+	public final static V2 LEFT = new V2(-1, 0);
+	public final static V2 DOWN = new V2(0, -1);
+	public final static V2 UP = new V2(0, 1);
+	
 
 	public V2(final float x, final float y) {
 		this.x = x;

@@ -3,7 +3,12 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
-import java.util.*;
+import java.awt.Rectangle;
+import java.awt.geom.Line2D;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import pathtest.AStarModule.AStarGraph;
@@ -27,10 +32,16 @@ public class GridWorld {
 	/**
 	 * Enable/disable nav cache.
 	 * Slow on rebuild, but querying for paths is way fast.
+	 * Needed optimization: When path found from p1->pn,
+	 * fill in all the discovered paths from p2->pn.
+	 * Even better: A* should not bother expanding
+	 * neighbor b if a path from b->pn is already found.
 	 */
 	boolean cache = false;
 	
 	Map<Point, List<Point>> navCache;
+	
+	List<Rectangle> walls;
 
 	public GridWorld(Dimension screenSize) {
 		graph = new AStarGraph<Point>();
@@ -41,6 +52,7 @@ public class GridWorld {
 		navCache = new HashMap<Point, List<Point>>();
 		tilew = size.width / xCells;
 		tileh = size.height / yCells;
+		walls = new LinkedList<Rectangle>();
 	}
 
 	private void buildMap() {
@@ -134,10 +146,11 @@ public class GridWorld {
 	}
 
 	public void rebuildGraph() {
-
+		walls.clear();
 		for (int x = 0; x < xCells; x++) {
 			for (int y = 0; y < yCells; y++) {
 				if (colors[x][y] != Color.CYAN) {
+					walls.add(new Rectangle(x * tilew, y * tileh, tilew + 1, tileh + 1));
 					AStarNode<Point> s = graph.getNode(new Point(x, y));
 					for( Entry<AStarNode<Point>, Double> neighbor : s.getChildren().entrySet()) {
 						neighbor.getKey().addPathCost(s, Double.MAX_VALUE);
@@ -167,6 +180,20 @@ public class GridWorld {
 		}
 	}
 	
+	public CollisionResult isCollidingWalls(V2 start, V2 target) {
+		for (final Rectangle w : walls) {
+			if (w.intersectsLine(start.x, start.y, target.x, target.y)) {
+				return new CollisionResult(){{wall = w; hit = true;}};
+			}
+		}
+		return new CollisionResult();
+	}
+	
+	public static class CollisionResult {
+		Rectangle wall = null;
+		boolean hit = false;
+	}
+	
 	private Point indexToPoint(int index) {
 		int y = index / xCells;
 		int x = index % yCells;
@@ -175,5 +202,14 @@ public class GridWorld {
 	
 	private int pointToIndex(Point a) {
 		return a.y * xCells + a.x;
+	}
+
+	public boolean isCollidingWalls(V2 center) {
+		for (Rectangle rect : walls) {
+			if (rect.contains(center.toPoint())) {
+				return true;
+			}
+		}
+		return false;
 	}	
 }

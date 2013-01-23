@@ -1,6 +1,8 @@
 package pathtest;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Rectangle;
+import java.util.List;
 
 public class Dude {
 	V2 pos;
@@ -31,5 +33,16 @@ public class Dude {
 			pos = midpoint.add( pos.sub(midpoint).unit().scale(r) );
 			other.pos = midpoint.add( other.pos.sub(midpoint).unit().scale(r) );
 		}
+	}
+	
+	public boolean collidingWith(List<Rectangle> walls) {
+		int r = this.r / 2;
+		Rectangle s = new Rectangle((int) (pos.x - r), (int) (pos.y -r), r * 2, r * 2);
+		for (Rectangle wall : walls) {
+			if (wall.intersects(s)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

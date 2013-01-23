@@ -3,15 +3,16 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
 
 import javax.swing.JPanel;
-import javax.swing.Timer;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 
 import pathtest.AStarModule.UnreachableNodeException;
 
@@ -19,9 +20,9 @@ public class ViewPanel extends JPanel {
 
 	GridWorld world;
 	Dude[] dudes;
-	Point[] subtarget;
+	Point[] subTargets;
 	Point target;
-	final int AMOUNT_DUDES = 15;
+	final int AMOUNT_DUDES = 30;
 
 	public ViewPanel() throws UnreachableNodeException {
 
@@ -32,6 +33,7 @@ public class ViewPanel extends JPanel {
 		world = new GridWorld(new Dimension(600, 600));
 		
 		dudes = new Dude[AMOUNT_DUDES];
+		subTargets = new Point[AMOUNT_DUDES];
 		for (int i = 0; i < dudes.length; i++) {
 			dudes[i] = new Dude(new V2(10, 10 + i));	
 		}
@@ -49,26 +51,35 @@ public class ViewPanel extends JPanel {
 		
 		new Timer(16, new ActionListener() {
 
-			void dudeStuff(Dude dude) {
+			void dudeStuff(int index) {
+				Dude dude = dudes[index];
 				Point dudeTile = world.getTile(dude.pos);
 				try {
-					List<Point> path = world.getPath(dudeTile, target);
-					//world.changeColors(Color.GREEN, path);
-					Point cGoal = dudeTile;
-					if (path.size() > 1) {
-						cGoal = path.get(1);
+					if (!dude.collidingWith(world.walls)) {
+						List<Point> path = world.getPath(dudeTile, target);
+						if (path.size() > 2) {
+							subTargets[index] = path.get(1);
+						} else {
+							subTargets[index] = target;
+						}
+						System.out.println(path.size());
+					} else {
+						if (world.isCollidingWalls(world.getCenter(subTargets[index]))) {
+							subTargets[index] = target;
+						}
 					}
-					dude.update(world.getCenter(cGoal));
 				} catch (Exception uhoh) {
-					dude.update(world.getCenter(target));
+					
 				}
+				dude.update(world.getCenter(subTargets[index]));
 			}
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				for (Dude dude : dudes) {
-					dudeStuff(dude);
+				for (int i = 0; i < dudes.length; i++) {
+					dudeStuff(i);
 				}
+
 				for (int i = 0; i < dudes.length; i++) {
 					for (int i2 = 0; i2 < dudes.length; i2++) {
 						if (i != i2) {
