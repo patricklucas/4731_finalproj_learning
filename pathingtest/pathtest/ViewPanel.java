@@ -62,7 +62,6 @@ public class ViewPanel extends JPanel {
 						} else {
 							subTargets[index] = target;
 						}
-						System.out.println(path.size());
 					} else {
 						if (world.isCollidingWalls(world.getCenter(subTargets[index]))) {
 							subTargets[index] = target;

@@ -130,8 +130,8 @@ public class GridWorld {
 			for (int y = 0; y < yCells; y++) {
 				g.setColor(colors[x][y]);
 				g.fillRect(x * tilew, y * tileh, tilew, tileh);
-				g.setColor(Color.black);
-				g.drawRect(x * tilew, y * tileh, tilew, tileh);
+				//g.setColor(Color.black);
+				//g.drawRect(x * tilew, y * tileh, tilew, tileh);
 			}
 		}
 

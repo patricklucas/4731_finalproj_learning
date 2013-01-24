@@ -6,8 +6,8 @@ import java.util.List;
 
 public class Dude {
 	V2 pos;
-	int r = 5;
-	float speed = 1;
+	int r = 10;
+	float speed = 2;
 
 	public Dude(V2 pos) {
 		this.pos = pos;
